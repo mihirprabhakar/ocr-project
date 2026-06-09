@@ -17,12 +17,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/roles', require('./routes/roles'));
 app.use('/api/users', require('./routes/users'));
-app.use('/api/scan', require('./routes/scan'));
 app.use('/api/templates', require('./routes/templates'));
 app.use('/api/dashboard', require('./routes/dashboard'));
+app.use('/api/scan', require('./routes/scan'));
 
 // Serve uploaded files
-const path = require('path');
 app.use('/uploads', require('express').static(path.join(__dirname, 'uploads')));
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
