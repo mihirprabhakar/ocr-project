@@ -1,0 +1,49 @@
+.history-page { max-width: 1200px; }
+
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  padding: 16px;
+}
+.filter-bar select, .filter-bar input { min-width: 130px; }
+
+.job-row { cursor: pointer; }
+.job-row:hover td { background: var(--bg-hover); }
+
+.job-id {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  background: var(--bg-hover);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--accent);
+}
+
+.file-cell { display: flex; align-items: center; gap: 8px; }
+.file-cell-name { font-size: 12px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.mini-confidence { display: flex; align-items: center; gap: 8px; }
+.mini-bar { width: 60px; height: 6px; background: var(--bg-hover); border-radius: 3px; overflow: hidden; }
+
+.status-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+  text-transform: capitalize;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+  color: var(--text-muted);
+  font-size: 13px;
+}

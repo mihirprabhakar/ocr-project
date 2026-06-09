@@ -8,6 +8,10 @@ const NAV = [
   { to: '/roles', icon: '⬡', label: 'Roles', adminOnly: true },
   { to: '/users', icon: '◈', label: 'Users', adminOnly: true },
   { to: '/templates', icon: '▤', label: 'Templates' },
+  { divider: true, label: 'OCR' },
+  { to: '/ocr/upload', icon: '⬆', label: 'New Scan' },
+  { to: '/ocr/history', icon: '◷', label: 'Scan History' },
+  { to: '/ocr/reports', icon: '◎', label: 'Reports' },
 ];
 
 export default function Layout() {
@@ -31,12 +35,16 @@ export default function Layout() {
         </div>
 
         <nav className="sidebar-nav">
-          {NAV.filter(n => !n.adminOnly || user?.isAdmin).map(({ to, icon, label }) => (
-            <NavLink key={to} to={to} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-              <span className="nav-icon">{icon}</span>
-              {!collapsed && <span className="nav-label">{label}</span>}
-            </NavLink>
-          ))}
+          {NAV.filter(n => !n.adminOnly || user?.isAdmin).map((n, i) =>
+            n.divider ? (
+              !collapsed && <div key={i} className="nav-divider"><span>{n.label}</span></div>
+            ) : (
+              <NavLink key={n.to} to={n.to} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                <span className="nav-icon">{n.icon}</span>
+                {!collapsed && <span className="nav-label">{n.label}</span>}
+              </NavLink>
+            )
+          )}
         </nav>
 
         <div className="sidebar-bottom">

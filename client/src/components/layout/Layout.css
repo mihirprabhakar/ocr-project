@@ -87,6 +87,16 @@
   overflow: hidden;
 }
 
+.nav-divider {
+  padding: 14px 12px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-family: var(--font-display);
+}
+
 .nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
 
 .nav-item.active {

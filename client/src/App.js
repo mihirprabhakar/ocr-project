@@ -7,6 +7,10 @@ import Dashboard from './pages/Dashboard';
 import Roles from './pages/Roles';
 import Users from './pages/Users';
 import Templates from './pages/Templates';
+import Upload from './pages/ocr/Upload';
+import Process from './pages/ocr/Process';
+import History from './pages/ocr/History';
+import Reports from './pages/ocr/Reports';
 
 const PrivateRoute = ({ children, adminOnly }) => {
   const { user, loading } = useAuth();
@@ -34,6 +38,11 @@ export default function App() {
             <Route path="roles" element={<PrivateRoute adminOnly><Roles /></PrivateRoute>} />
             <Route path="users" element={<PrivateRoute adminOnly><Users /></PrivateRoute>} />
             <Route path="templates" element={<Templates />} />
+            {/* Phase 2 — OCR */}
+            <Route path="ocr/upload" element={<Upload />} />
+            <Route path="ocr/process/:id" element={<Process />} />
+            <Route path="ocr/history" element={<History />} />
+            <Route path="ocr/reports" element={<Reports />} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>
