@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 
 const DEFAULT_FORM = { name: '', email: '', password: '', department: '', phone: '', role: '', templates: [], isActive: true, isAdmin: false };
 
 export default function Users() {
+  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(false);
-  const [editing, setEditing] = useState(null);
+  const [editingUser, setEditingUser] = useState(null); // full user object
   const [form, setForm] = useState(DEFAULT_FORM);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -22,22 +24,35 @@ export default function Users() {
 
   useEffect(() => { load(); }, []);
 
-  const openCreate = () => { setForm(DEFAULT_FORM); setEditing(null); setError(''); setModal(true); };
+  const openCreate = () => { setForm(DEFAULT_FORM); setEditingUser(null); setError(''); setModal(true); };
+
   const openEdit = (u) => {
-    setForm({ name: u.name, email: u.email, password: '', department: u.department || '', phone: u.phone || '', role: u.role?._id || '', templates: u.templates?.map(t => t._id) || [], isActive: u.isActive, isAdmin: u.isAdmin });
-    setEditing(u._id);
+    // Block editing Super Admin if you are not the Super Admin yourself
+    if (u.isSuperAdmin && currentUser._id !== u._id) {
+      alert('The Super Admin account can only be edited by themselves.');
+      return;
+    }
+    setForm({
+      name: u.name, email: u.email, password: '',
+      department: u.department || '', phone: u.phone || '',
+      role: u.role?._id || '',
+      templates: u.templates?.map(t => t._id) || [],
+      isActive: u.isActive,
+      isAdmin: u.isAdmin,
+    });
+    setEditingUser(u);
     setError('');
     setModal(true);
   };
 
   const handleSave = async () => {
     if (!form.name || !form.email) return setError('Name and email are required');
-    if (!editing && !form.password) return setError('Password is required for new users');
+    if (!editingUser && !form.password) return setError('Password is required for new users');
     setSaving(true); setError('');
     try {
       const payload = { ...form };
       if (!payload.password) delete payload.password;
-      if (editing) await api.put(`/users/${editing}`, payload);
+      if (editingUser) await api.put(`/users/${editingUser._id}`, payload);
       else await api.post('/users', payload);
       setModal(false); load();
     } catch (err) {
@@ -45,17 +60,29 @@ export default function Users() {
     } finally { setSaving(false); }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this user?')) return;
-    await api.delete(`/users/${id}`); load();
+  const handleDelete = async (u) => {
+    if (u.isSuperAdmin) { alert('The Super Admin account cannot be deleted.'); return; }
+    if (u._id === currentUser._id) { alert('You cannot delete your own account.'); return; }
+    if (!window.confirm(`Delete user "${u.name}"?`)) return;
+    try {
+      await api.delete(`/users/${u._id}`);
+      load();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Delete failed');
+    }
   };
 
   const toggleTemplate = (id) => setForm(f => ({
     ...f, templates: f.templates.includes(id) ? f.templates.filter(t => t !== id) : [...f.templates, id]
   }));
 
+  // Determine if admin/active checkboxes should be disabled in the modal
+  const isSuperAdminTarget = editingUser?.isSuperAdmin;
+  const isEditingSelf = editingUser?._id === currentUser?._id;
+
   const filtered = users.filter(u =>
-    u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())
+    u.name.toLowerCase().includes(search.toLowerCase()) ||
+    u.email.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -102,7 +129,14 @@ export default function Users() {
                             {u.name.charAt(0)}
                           </div>
                           <div>
-                            <div style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{u.name}</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{u.name}</span>
+                              {u.isSuperAdmin && (
+                                <span title="Super Admin — protected" style={{ fontSize: 11, background: 'rgba(245,158,11,0.15)', color: '#f59e0b', padding: '1px 7px', borderRadius: 10, fontFamily: 'var(--font-display)', fontWeight: 700, letterSpacing: '0.04em' }}>
+                                  ★ SUPER
+                                </span>
+                              )}
+                            </div>
                             <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{u.email}</div>
                           </div>
                         </div>
@@ -116,8 +150,18 @@ export default function Users() {
                       <td><span className={`badge ${u.isActive ? 'badge-active' : 'badge-inactive'}`}>{u.isActive ? '● Active' : '● Off'}</span></td>
                       <td>
                         <div style={{ display: 'flex', gap: 6 }}>
-                          <button className="btn btn-ghost btn-sm" onClick={() => openEdit(u)}>Edit</button>
-                          <button className="btn btn-danger btn-sm" onClick={() => handleDelete(u._id)}>Del</button>
+                          {/* Hide Edit button for Super Admin if you're not them */}
+                          {(!u.isSuperAdmin || u._id === currentUser?._id) && (
+                            <button className="btn btn-ghost btn-sm" onClick={() => openEdit(u)}>Edit</button>
+                          )}
+                          {/* Hide Delete for Super Admin and for self */}
+                          {!u.isSuperAdmin && u._id !== currentUser?._id && (
+                            <button className="btn btn-danger btn-sm" onClick={() => handleDelete(u)}>Del</button>
+                          )}
+                          {/* Lock icon for protected Super Admin row */}
+                          {u.isSuperAdmin && u._id !== currentUser?._id && (
+                            <span title="Protected account" style={{ color: 'var(--text-muted)', fontSize: 16, padding: '4px 8px' }}>🔒</span>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -133,11 +177,17 @@ export default function Users() {
         <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && setModal(false)}>
           <div className="modal" style={{ maxWidth: 580 }}>
             <div className="modal-header">
-              <h2>{editing ? 'Edit User' : 'Create User'}</h2>
+              <h2>{editingUser ? 'Edit User' : 'Create User'}</h2>
               <button className="btn-icon" onClick={() => setModal(false)}>✕</button>
             </div>
 
             {error && <div className="login-error" style={{ marginBottom: 16 }}>{error}</div>}
+
+            {isSuperAdminTarget && (
+              <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', color: '#f59e0b', padding: '10px 14px', borderRadius: 8, fontSize: 12, marginBottom: 16 }}>
+                ★ This is the Super Admin account. Admin status and account activation cannot be changed.
+              </div>
+            )}
 
             <div className="form-row">
               <div className="form-group">
@@ -152,7 +202,7 @@ export default function Users() {
 
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label">{editing ? 'New Password (leave blank to keep)' : 'Password *'}</label>
+                <label className="form-label">{editingUser ? 'New Password (leave blank to keep)' : 'Password *'}</label>
                 <input type="password" placeholder="••••••••" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
               </div>
               <div className="form-group">
@@ -184,25 +234,43 @@ export default function Users() {
                     <label htmlFor={`t-${t._id}`}>{t.name} <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>({t.documentType})</span></label>
                   </div>
                 ))}
-                {templates.length === 0 && <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>No templates available. Create templates first.</p>}
+                {templates.length === 0 && <p style={{ color: 'var(--text-muted)', fontSize: 12 }}>No templates available.</p>}
               </div>
             </div>
 
             <div className="form-row">
-              <div className="checkbox-item">
-                <input type="checkbox" id="isActive" checked={form.isActive} onChange={e => setForm({ ...form, isActive: e.target.checked })} />
-                <label htmlFor="isActive">Active User</label>
+              {/* Active checkbox — disabled for Super Admin */}
+              <div className="checkbox-item" title={isSuperAdminTarget ? 'Cannot deactivate Super Admin' : ''}>
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  checked={form.isActive}
+                  disabled={isSuperAdminTarget}
+                  onChange={e => setForm({ ...form, isActive: e.target.checked })}
+                />
+                <label htmlFor="isActive" style={{ opacity: isSuperAdminTarget ? 0.4 : 1 }}>Active User</label>
               </div>
-              <div className="checkbox-item">
-                <input type="checkbox" id="isAdmin" checked={form.isAdmin} onChange={e => setForm({ ...form, isAdmin: e.target.checked })} />
-                <label htmlFor="isAdmin">Admin Privileges</label>
+
+              {/* Admin checkbox — disabled for Super Admin target AND when editing self */}
+              <div className="checkbox-item" title={isSuperAdminTarget ? 'Cannot change Super Admin privileges' : isEditingSelf ? 'Cannot remove your own admin access' : ''}>
+                <input
+                  type="checkbox"
+                  id="isAdmin"
+                  checked={form.isAdmin}
+                  disabled={isSuperAdminTarget || isEditingSelf}
+                  onChange={e => setForm({ ...form, isAdmin: e.target.checked })}
+                />
+                <label htmlFor="isAdmin" style={{ opacity: (isSuperAdminTarget || isEditingSelf) ? 0.4 : 1 }}>
+                  Admin Privileges
+                  {isEditingSelf && !isSuperAdminTarget && <span style={{ color: 'var(--text-muted)', fontSize: 11, marginLeft: 6 }}>(cannot change own)</span>}
+                </label>
               </div>
             </div>
 
             <div className="modal-footer">
               <button className="btn btn-ghost" onClick={() => setModal(false)}>Cancel</button>
               <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                {saving ? <><span className="spinner" /> Saving…</> : (editing ? 'Update User' : 'Create User')}
+                {saving ? <><span className="spinner" /> Saving…</> : (editingUser ? 'Update User' : 'Create User')}
               </button>
             </div>
           </div>

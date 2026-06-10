@@ -16,6 +16,7 @@ const UserSchema = new mongoose.Schema(
     templates: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Template' }],
     isActive: { type: Boolean, default: true },
     isAdmin: { type: Boolean, default: false },
+    isSuperAdmin: { type: Boolean, default: false }, // First registered user — protected forever
     department: { type: String, trim: true },
     phone: { type: String, trim: true },
     lastLogin: { type: Date },

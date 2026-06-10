@@ -34,14 +34,16 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// @POST /api/auth/register (first admin setup)
+// @POST /api/auth/register (first admin setup only)
 router.post('/register', async (req, res) => {
   try {
     const count = await User.countDocuments();
     const { name, email, password } = req.body;
+    const isFirst = count === 0;
     const user = await User.create({
       name, email, password,
-      isAdmin: count === 0, // First user becomes admin
+      isAdmin: isFirst,
+      isSuperAdmin: isFirst, // First user is Super Admin — can never be demoted
     });
     const token = signToken(user._id);
     res.status(201).json({ success: true, token, user });
