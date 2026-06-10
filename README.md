@@ -7,22 +7,22 @@ A full-stack MERN application for managing document scanning, OCR data extractio
 
 ## Table of Contents
 
-* [Overview](https://claude.ai/chat/c6e1fe21-815b-480e-aa1a-cf9b7144d6a8#overview)
-* [Tech Stack](https://claude.ai/chat/c6e1fe21-815b-480e-aa1a-cf9b7144d6a8#tech-stack)
-* [Project Structure](https://claude.ai/chat/c6e1fe21-815b-480e-aa1a-cf9b7144d6a8#project-structure)
-* [Prerequisites](https://claude.ai/chat/c6e1fe21-815b-480e-aa1a-cf9b7144d6a8#prerequisites)
-* [Installation](https://claude.ai/chat/c6e1fe21-815b-480e-aa1a-cf9b7144d6a8#installation)
-* [Environment Variables](https://claude.ai/chat/c6e1fe21-815b-480e-aa1a-cf9b7144d6a8#environment-variables)
-* [Running the Project](https://claude.ai/chat/c6e1fe21-815b-480e-aa1a-cf9b7144d6a8#running-the-project)
-* [First Time Setup](https://claude.ai/chat/c6e1fe21-815b-480e-aa1a-cf9b7144d6a8#first-time-setup)
-* [Features](https://claude.ai/chat/c6e1fe21-815b-480e-aa1a-cf9b7144d6a8#features)
-* [API Reference](https://claude.ai/chat/c6e1fe21-815b-480e-aa1a-cf9b7144d6a8#api-reference)
-* [User Roles &amp; Permissions](https://claude.ai/chat/c6e1fe21-815b-480e-aa1a-cf9b7144d6a8#user-roles--permissions)
-* [OCR Scanning Flow](https://claude.ai/chat/c6e1fe21-815b-480e-aa1a-cf9b7144d6a8#ocr-scanning-flow)
-* [SAP Integration](https://claude.ai/chat/c6e1fe21-815b-480e-aa1a-cf9b7144d6a8#sap-integration)
-* [Security](https://claude.ai/chat/c6e1fe21-815b-480e-aa1a-cf9b7144d6a8#security)
-* [Troubleshooting](https://claude.ai/chat/c6e1fe21-815b-480e-aa1a-cf9b7144d6a8#troubleshooting)
-* [Project Roadmap](https://claude.ai/chat/c6e1fe21-815b-480e-aa1a-cf9b7144d6a8#project-roadmap)
+* Overview
+* Tech Stack
+* Project Structure
+* Prerequisits
+* Installation
+* Environment Variables
+* Running the project
+* First Time Setup
+* Features
+* API References
+* User Roles & Permissions
+* OCR Scanning Flow
+* SAP Integration
+* Security
+* Troubleshooting
+* Project Roadmap
 
 ---
 
