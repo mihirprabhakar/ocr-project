@@ -183,7 +183,7 @@ cp .env.example .env
 PORT=5000
 NODE_ENV=development
 
-# MongoDB — paste your Atlas connection string here
+# MongoDB — paste your Compass connection database link here
 MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/ocr_admin?retryWrites=true&w=majority
 
 # JWT — generate a secure random key (see below)
