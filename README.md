@@ -577,7 +577,7 @@ cd client && npm install
 
 ## Project Roadmap
 
-copy .env.example .env✅ Phase 1 — Admin Panel
+✅ Phase 1 — Admin Panel
    ✅ Role management with permissions
    ✅ User management with role and template assignment
    ✅ Template management with typed field definitions
@@ -593,7 +593,7 @@ copy .env.example .env✅ Phase 1 — Admin Panel
    ✅ Reports and analytics
    ✅ JSON export
 
-🔜 Phase 3 — Testing
+✅ Phase 3 — Testing
    ✅ Functional testing of all features
    ✅ OCR accuracy testing with real documents
    ✅ Role-based access testing
