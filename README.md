@@ -1,7 +1,10 @@
-
 # OCR Admin Panel
 
 A full-stack MERN application for managing document scanning, OCR data extraction, and SAP integration. Built for enterprise teams who need role-based access control over document workflows.
+
+> For successful running of project please copy the .env.example file to .env file for further process . Command for doing the same is :-
+
+**copy .env.example .env**
 
 ---
 
