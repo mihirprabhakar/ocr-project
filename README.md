@@ -205,15 +205,13 @@ Run this in the VS Code terminal and copy the output:
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
 
-**Getting a MongoDB Atlas URI:**
+**Getting a MongoDB Compass Connection:**
 
-1. Sign up at https://www.mongodb.com/cloud/atlas
-2. Create a free M0 cluster
-3. Go to Database Access → Add New User → set username and password
-4. Go to Network Access → Add IP Address → Allow from Anywhere
-5. Go to Database → Connect → Drivers → Node.js → copy the URI
-6. Replace `<password>` with your actual password
-7. Add `/ocr_admin` before the `?` in the URI
+1. Download to mOngo Db compass
+2. Create the database for the same
+3. Connect to the Database and enter the URL of the database
+4. Enter the url in .env file
+5. Make sure mongod is running in your terminal
 
 ---
 
