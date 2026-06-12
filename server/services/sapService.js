@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 
- //SAP / External System Push Service
+ //SAP or External System Push Service
  //Sends mapped OCR data to SAP or any configured ERP endpoint
  
 
