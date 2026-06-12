@@ -1,9 +1,9 @@
 const axios = require('axios');
 
-/**
- * SAP / External System Push Service
- * Sends mapped OCR data to SAP or any configured ERP endpoint
- */
+
+ //SAP / External System Push Service
+ //Sends mapped OCR data to SAP or any configured ERP endpoint
+ 
 
 const pushToSAP = async (scanJob, template) => {
   const sapEndpoint = process.env.SAP_ENDPOINT;

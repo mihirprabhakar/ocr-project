@@ -48,7 +48,7 @@ const ScanJobSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Auto-generate jobId before save
+// Autogenerates jobId before save
 ScanJobSchema.pre('save', function (next) {
   if (!this.jobId) {
     this.jobId = 'JOB-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();

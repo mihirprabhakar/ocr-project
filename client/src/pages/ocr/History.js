@@ -71,7 +71,7 @@ export default function History() {
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Filters  */}
       <div className="card filter-bar">
         <select value={filters.status} onChange={e => setFilters({ ...filters, status: e.target.value })} style={{ flex: 1, minWidth: 140 }}>
           <option value="">All Statuses</option>

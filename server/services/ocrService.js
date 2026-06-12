@@ -1,10 +1,10 @@
 const path = require('path');
 const fs = require('fs');
 
-/**
- * OCR Service using Tesseract.js
- * PDF support via pdf-to-img (no GraphicsMagick needed)
- */
+
+ //OCR Service using Tesseract.js
+ //PDF support via pdf-to-img (no GraphicsMagick needed)
+ 
 
 let Tesseract;
 try {
@@ -13,9 +13,9 @@ try {
   console.warn('⚠️  tesseract.js not installed. Run: npm install tesseract.js');
 }
 
-/**
- * Convert PDF to images using pdf-to-img (no GraphicsMagick needed)
- */
+
+ //Convert PDF to images using pdf-to-img (no GraphicsMagick needed)
+ 
 const pdfToImages = async (filePath) => {
   const { pdf } = require('pdf-to-img');
   const outputDir = path.join(__dirname, '../uploads/pdf_images');
@@ -36,15 +36,15 @@ const pdfToImages = async (filePath) => {
   return images;
 };
 
-/**
- * Run OCR on a file (image or PDF)
- */
+
+ //Run OCR on a file (image or PDF)
+ 
 const runOCR = async (filePath) => {
   if (!Tesseract) throw new Error('Tesseract.js not installed. Run: npm install tesseract.js');
 
   const ext = path.extname(filePath).toLowerCase();
 
-  // ── Images — run Tesseract directly ──────────────────────────────
+  //  Images run Tesseract directly 
   if (['.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.webp'].includes(ext)) {
     const { data } = await Tesseract.recognize(filePath, 'eng', {
       logger: () => {},
@@ -55,7 +55,7 @@ const runOCR = async (filePath) => {
     };
   }
 
-  // ── PDFs — convert to images using pdf-to-img, then OCR ──────────
+  // PDFs  convert to images using pdf-to-img, then OCR 
   if (ext === '.pdf') {
     let imagePaths = [];
     try {
@@ -95,10 +95,10 @@ const runOCR = async (filePath) => {
   throw new Error('Unsupported file type: ' + ext);
 };
 
-/**
- * Extract field values from raw OCR text using template fields
- * Uses pattern matching + keyword proximity
- */
+
+ //Extract field values from raw OCR text using template fields
+ //Uses pattern matching + keyword proximity
+ 
 const extractFields = (rawText, templateFields) => {
   const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
 

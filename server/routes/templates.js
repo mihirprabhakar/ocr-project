@@ -3,7 +3,7 @@ const router = express.Router();
 const Template = require('../models/Template');
 const { protect, adminOnly } = require('../middleware/auth');
 
-// GET all templates
+// GET all the templates
 router.get('/', protect, async (req, res) => {
   try {
     const templates = await Template.find()

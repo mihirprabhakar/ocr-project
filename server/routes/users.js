@@ -3,21 +3,21 @@ const router = express.Router();
 const User = require('../models/User');
 const { protect, adminOnly } = require('../middleware/auth');
 
-// ─── Protection helper ────────────────────────────────────────────────────────
+
 // Returns error string if the edit should be blocked, null if allowed
 const checkProtection = (requester, targetUser, changes = {}) => {
 
-  // Rule 1: Nobody can edit a SuperAdmin except themselves
+  // Rule 1: Nobody can edit a SuperAdmin except themselves super admin is the comapny account
   if (targetUser.isSuperAdmin && requester._id.toString() !== targetUser._id.toString()) {
     return 'The original Super Admin account cannot be modified by other admins.';
   }
 
-  // Rule 2: No one can remove isSuperAdmin from the Super Admin (not even themselves)
+  // Rule 2: No one can remove isSuperAdmin from the Super Admin
   if (targetUser.isSuperAdmin && changes.isSuperAdmin === false) {
     return 'Super Admin status cannot be removed from the original admin account.';
   }
 
-  // Rule 3: No one can deactivate the Super Admin account
+  // Rule 3: No one can deactivate the Super Admin account no matters who they are
   if (targetUser.isSuperAdmin && changes.isActive === false) {
     return 'The Super Admin account cannot be deactivated.';
   }
@@ -73,7 +73,7 @@ router.get('/:id', protect, adminOnly, async (req, res) => {
 // POST create user
 router.post('/', protect, adminOnly, async (req, res) => {
   try {
-    // Never allow manually setting isSuperAdmin via API
+    // Never allow manually setting isSuperAdmin via API set it manually
     delete req.body.isSuperAdmin;
     const user = await User.create(req.body);
     const populated = await User.findById(user._id)

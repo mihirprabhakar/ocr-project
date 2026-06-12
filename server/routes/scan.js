@@ -9,10 +9,10 @@ const { protect } = require('../middleware/auth');
 const { runOCR, extractFields } = require('../services/ocrService');
 const { pushToSAP } = require('../services/sapService');
 
-// ─────────────────────────────────────────────
+
 // MODULE 1: DOCUMENT UPLOAD
 // POST /api/scan/upload
-// ─────────────────────────────────────────────
+
 router.post('/upload', protect, upload.single('document'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
@@ -46,28 +46,28 @@ router.post('/upload', protect, upload.single('document'), async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────
-// MODULE 2 + 3: OCR PROCESSING + DATA MAPPING
+
+// MODULE 2 and 3: OCR PROCESSING with DATA MAPPING
 // POST /api/scan/:id/process
-// ─────────────────────────────────────────────
+
 router.post('/:id/process', protect, async (req, res) => {
   const scanJob = await ScanJob.findById(req.params.id).populate('template');
   if (!scanJob) return res.status(404).json({ success: false, message: 'Scan job not found' });
 
   try {
-    // Update status to processing
+    // Update the  status to processing
     scanJob.status = 'processing';
     scanJob.processingStartedAt = new Date();
     await scanJob.save();
 
-    // Run OCR
+    // Run the OCR
     const { text, confidence } = await runOCR(scanJob.filePath);
     scanJob.rawText = text;
     scanJob.ocrConfidence = confidence;
     scanJob.status = 'extracted';
     await scanJob.save();
 
-    // Map fields using template
+    // Map the fields using templates
     const fields = extractFields(text, scanJob.template.fields || []);
     scanJob.extractedFields = fields;
     scanJob.status = 'mapped';
@@ -88,10 +88,10 @@ router.post('/:id/process', protect, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────
+
 // UPDATE FIELD VALUES (Manual correction)
 // PUT /api/scan/:id/fields
-// ─────────────────────────────────────────────
+
 router.put('/:id/fields', protect, async (req, res) => {
   try {
     const { fields } = req.body;
@@ -108,10 +108,10 @@ router.put('/:id/fields', protect, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────
-// MODULE 4: DATA STORAGE — GET ALL JOBS
+
+// MODULE 4: DATA STORAGE :— GET ALL JOBS
 // GET /api/scan
-// ─────────────────────────────────────────────
+
 router.get('/', protect, async (req, res) => {
   try {
     const { status, templateId, from, to, page = 1, limit = 20 } = req.query;
@@ -154,10 +154,10 @@ router.get('/:id', protect, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────
+
 // MODULE 5: DATA PUSH TO SAP
 // POST /api/scan/:id/push
-// ─────────────────────────────────────────────
+
 router.post('/:id/push', protect, async (req, res) => {
   try {
     const scanJob = await ScanJob.findById(req.params.id).populate('template');
@@ -183,10 +183,10 @@ router.post('/:id/push', protect, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────
+
 // MODULE 6: REPORTS & STATS
 // GET /api/scan/reports/stats
-// ─────────────────────────────────────────────
+
 router.get('/reports/stats', protect, async (req, res) => {
   try {
     const filter = req.user.isAdmin ? {} : { user: req.user._id };
