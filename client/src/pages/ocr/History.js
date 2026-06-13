@@ -71,7 +71,7 @@ export default function History() {
         </div>
       </div>
 
-      {/* Filters  */}
+      {/* Filters */}
       <div className="card filter-bar">
         <select value={filters.status} onChange={e => setFilters({ ...filters, status: e.target.value })} style={{ flex: 1, minWidth: 140 }}>
           <option value="">All Statuses</option>
@@ -125,7 +125,14 @@ export default function History() {
                         </div>
                       </td>
                       <td>{job.template?.name || '—'}</td>
-                      <td>{job.user?.name || '—'}</td>
+                      <td>
+                        {job.user ? (
+                          <div>
+                            <div style={{ color: 'var(--text-primary)' }}>{job.user.name}</div>
+                            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{job.user.email}</div>
+                          </div>
+                        ) : '—'}
+                      </td>
                       <td>
                         {job.ocrConfidence > 0 ? (
                           <div className="mini-confidence">
