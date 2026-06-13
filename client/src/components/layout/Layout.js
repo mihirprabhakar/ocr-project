@@ -9,9 +9,9 @@ const NAV = [
   { to: '/users', icon: '◈', label: 'Users', adminOnly: true },
   { to: '/templates', icon: '▤', label: 'Templates' },
   { divider: true, label: 'OCR' },
-  { to: '/ocr/upload', icon: '⬆', label: 'New Scan' },
-  { to: '/ocr/history', icon: '◷', label: 'Scan History' },
-  { to: '/ocr/reports', icon: '◎', label: 'Reports' },
+  { to: '/ocr/upload', icon: '⬆', label: 'New Scan', permission: 'canScan' },
+  { to: '/ocr/history', icon: '◷', label: 'Scan History', permission: 'canScan' },
+  { to: '/ocr/reports', icon: '◎', label: 'Reports', permission: 'canViewReports' },
 ];
 
 export default function Layout() {
@@ -35,7 +35,11 @@ export default function Layout() {
         </div>
 
         <nav className="sidebar-nav">
-          {NAV.filter(n => !n.adminOnly || user?.isAdmin).map((n, i) =>
+          {NAV.filter(n => {
+            if (n.adminOnly && !user?.isAdmin) return false;
+            if (n.permission && !user?.isAdmin && !user?.role?.permissions?.[n.permission]) return false;
+            return true;
+          }).map((n, i) =>
             n.divider ? (
               !collapsed && <div key={i} className="nav-divider"><span>{n.label}</span></div>
             ) : (

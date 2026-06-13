@@ -12,11 +12,12 @@ import Process from './pages/ocr/Process';
 import History from './pages/ocr/History';
 import Reports from './pages/ocr/Reports';
 
-const PrivateRoute = ({ children, adminOnly }) => {
+const PrivateRoute = ({ children, adminOnly, permission }) => {
   const { user, loading } = useAuth();
   if (loading) return <div className="loading"><div className="spinner" /></div>;
   if (!user) return <Navigate to="/login" />;
   if (adminOnly && !user.isAdmin) return <Navigate to="/dashboard" />;
+  if (permission && !user.isAdmin && !user.role?.permissions?.[permission]) return <Navigate to="/dashboard" />;
   return children;
 };
 
@@ -39,10 +40,10 @@ export default function App() {
             <Route path="users" element={<PrivateRoute adminOnly><Users /></PrivateRoute>} />
             <Route path="templates" element={<Templates />} />
             {/* Phase 2 — OCR */}
-            <Route path="ocr/upload" element={<Upload />} />
-            <Route path="ocr/process/:id" element={<Process />} />
-            <Route path="ocr/history" element={<History />} />
-            <Route path="ocr/reports" element={<Reports />} />
+            <Route path="ocr/upload" element={<PrivateRoute permission="canScan"><Upload /></PrivateRoute>} />
+            <Route path="ocr/process/:id" element={<PrivateRoute permission="canScan"><Process /></PrivateRoute>} />
+            <Route path="ocr/history" element={<PrivateRoute permission="canScan"><History /></PrivateRoute>} />
+            <Route path="ocr/reports" element={<PrivateRoute permission="canViewReports"><Reports /></PrivateRoute>} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" />} />
         </Routes>

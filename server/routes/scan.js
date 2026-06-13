@@ -5,7 +5,7 @@ const fs = require('fs');
 const ScanJob = require('../models/ScanJob');
 const Template = require('../models/Template');
 const upload = require('../middleware/upload');
-const { protect } = require('../middleware/auth');
+const { protect, requirePermission } = require('../middleware/auth');
 const { runOCR, extractFields } = require('../services/ocrService');
 const { pushToSAP } = require('../services/sapService');
 
@@ -13,7 +13,7 @@ const { pushToSAP } = require('../services/sapService');
 // MODULE 1: DOCUMENT UPLOAD
 // POST /api/scan/upload
 
-router.post('/upload', protect, upload.single('document'), async (req, res) => {
+router.post('/upload', protect, requirePermission('canScan'), upload.single('document'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
     const { templateId } = req.body;
@@ -47,27 +47,27 @@ router.post('/upload', protect, upload.single('document'), async (req, res) => {
 });
 
 
-// MODULE 2 and 3: OCR PROCESSING with DATA MAPPING
+// MODULE 2 and 3: OCR PROCESSING and DATA MAPPING
 // POST /api/scan/:id/process
 
-router.post('/:id/process', protect, async (req, res) => {
+router.post('/:id/process', protect, requirePermission('canScan'), async (req, res) => {
   const scanJob = await ScanJob.findById(req.params.id).populate('template');
   if (!scanJob) return res.status(404).json({ success: false, message: 'Scan job not found' });
 
   try {
-    // Update the  status to processing
+    // Update status to processing
     scanJob.status = 'processing';
     scanJob.processingStartedAt = new Date();
     await scanJob.save();
 
-    // Run the OCR
+    // Run OCR
     const { text, confidence } = await runOCR(scanJob.filePath);
     scanJob.rawText = text;
     scanJob.ocrConfidence = confidence;
     scanJob.status = 'extracted';
     await scanJob.save();
 
-    // Map the fields using templates
+    // Map fields using template
     const fields = extractFields(text, scanJob.template.fields || []);
     scanJob.extractedFields = fields;
     scanJob.status = 'mapped';
@@ -109,7 +109,7 @@ router.put('/:id/fields', protect, async (req, res) => {
 });
 
 
-// MODULE 4: DATA STORAGE :— GET ALL JOBS
+// MODULE 4: DATA STORAGE — GET ALL JOBS
 // GET /api/scan
 
 router.get('/', protect, async (req, res) => {
@@ -158,7 +158,7 @@ router.get('/:id', protect, async (req, res) => {
 // MODULE 5: DATA PUSH TO SAP
 // POST /api/scan/:id/push
 
-router.post('/:id/push', protect, async (req, res) => {
+router.post('/:id/push', protect, requirePermission('canPushToSAP'), async (req, res) => {
   try {
     const scanJob = await ScanJob.findById(req.params.id).populate('template');
     if (!scanJob) return res.status(404).json({ success: false, message: 'Scan job not found' });
@@ -187,7 +187,7 @@ router.post('/:id/push', protect, async (req, res) => {
 // MODULE 6: REPORTS & STATS
 // GET /api/scan/reports/stats
 
-router.get('/reports/stats', protect, async (req, res) => {
+router.get('/reports/stats', protect, requirePermission('canViewReports'), async (req, res) => {
   try {
     const filter = req.user.isAdmin ? {} : { user: req.user._id };
 
@@ -234,8 +234,8 @@ router.get('/reports/stats', protect, async (req, res) => {
   }
 });
 
-// EXPORT scan data as JSON
-router.get('/reports/export', protect, async (req, res) => {
+// EXPORT the scan data as JSON
+router.get('/reports/export', protect, requirePermission('canViewReports'), async (req, res) => {
   try {
     const filter = req.user.isAdmin ? {} : { user: req.user._id };
     const { status } = req.query;

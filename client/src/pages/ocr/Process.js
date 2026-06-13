@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
 import './Process.css';
 
@@ -9,6 +10,8 @@ const STATUS_LABELS = { uploaded: 'Uploaded', processing: 'Scanning…', extract
 export default function Process() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const canPushToSAP = user?.isAdmin || user?.role?.permissions?.canPushToSAP;
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
@@ -137,10 +140,15 @@ export default function Process() {
                   </button>
                 </>
               )}
-              {['mapped', 'verified'].includes(job.status) && (
+              {['mapped', 'verified'].includes(job.status) && canPushToSAP && (
                 <button className="btn" style={{ width: '100%', justifyContent: 'center', marginTop: 8, background: '#7c3aed', color: '#fff' }} onClick={handlePush} disabled={pushing}>
                   {pushing ? <><span className="spinner" /> Pushing…</> : '⬆ Push to SAP'}
                 </button>
+              )}
+              {['mapped', 'verified'].includes(job.status) && !canPushToSAP && (
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', textAlign: 'center', marginTop: 8, padding: '8px', background: 'var(--bg-hover)', borderRadius: 6 }}>
+                  Your role does not have permission to push data to SAP.
+                </div>
               )}
               {job.status === 'failed' && (
                 <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={handleProcess} disabled={processing}>

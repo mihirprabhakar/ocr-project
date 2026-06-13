@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-
 exports.protect = async (req, res, next) => {
   let token;
   if (req.headers.authorization?.startsWith('Bearer')) {
@@ -26,4 +25,17 @@ exports.adminOnly = (req, res, next) => {
   next();
 };
 
+// Checks role.permissions[permissionKey] === true.
+// Admins (isAdmin: true) always bypass this check.
+exports.requirePermission = (permissionKey) => (req, res, next) => {
+  if (req.user?.isAdmin) return next();
 
+  const hasPermission = req.user?.role?.permissions?.[permissionKey];
+  if (!hasPermission) {
+    return res.status(403).json({
+      success: false,
+      message: `Your role does not have permission to perform this action (${permissionKey}).`,
+    });
+  }
+  next();
+};
